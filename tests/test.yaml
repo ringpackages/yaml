@@ -1,0 +1,39 @@
+author: "Test User"
+version: 1.2
+is_active: true
+description: |
+  This is a multi-line
+  description for testing.
+
+database:
+  user:
+    name: "db_user"
+    role: "admin"
+  ports:
+  - 8001
+  - 8002
+  - 8003
+
+servers:
+  alpha:
+    ip: "10.0.0.1"
+    dc: "us-east-1"
+  beta:
+    ip: "10.0.0.2"
+    dc: "us-west-1"
+
+products:
+- sku: 738594937
+  name: "Hammer"
+- sku: 23482342
+  name: "Nail"
+
+# Merge key test
+defaults: &defaults
+  adapter: "postgres"
+  host: "localhost"
+
+development:
+  database: *defaults
+  <<: *defaults
+  port: 5432

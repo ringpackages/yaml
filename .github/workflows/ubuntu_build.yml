@@ -1,0 +1,60 @@
+name: Ubuntu Build
+
+on:
+  workflow_call:
+    inputs:
+      ring-version:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-24.04
+          arch: amd64
+          name: ubuntu-24.04-amd64
+        - os: ubuntu-24.04-arm
+          arch: arm64
+          name: ubuntu-24.04-arm64
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    - name: Checkout ring-yaml
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Clone Ring Language
+      uses: actions/checkout@v4
+      with:
+        repository: ring-lang/ring
+        path: ring
+        ref: ${{ inputs.ring-version }}
+
+    - name: Build and Install Ring Language
+      run: |
+        cd ring/language
+        cmake . -DCMAKE_BUILD_TYPE=Release
+        make install
+
+    - name: Set RING environment variable
+      run: echo "RING=$(pwd)/ring" >> $GITHUB_ENV
+
+    - name: Build ring-yaml lib
+      run: |
+        rm -rf lib
+        cmake . -DCMAKE_BUILD_TYPE=Release
+        make
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ring-yaml-${{ matrix.name }}
+        path: lib

@@ -1,0 +1,97 @@
+# Large configuration file example
+application:
+  name: Enterprise Administration System
+  version: "2.1.0"
+  description: A comprehensive system for managing enterprise operations
+
+servers:
+  - id: db-primary
+    host: db1.company.com
+    type: database
+    database:
+      name: enterprise_db
+      user: db_user
+      tables:
+        - name: users
+          columns: [id, name, email, department, role]
+          indexes: [email_idx, dept_idx]
+        - name: departments
+          columns: [id, name, manager_id, budget]
+          indexes: [name_idx]
+        - name: projects
+          columns: [id, name, dept_id, start_date, end_date, status]
+          indexes: [dept_idx, status_idx]
+
+  - id: api-server-01
+    host: api01.company.com
+    type: application
+    ports: [8080, 8443]
+    endpoints:
+      - path: /api/v1/users
+        methods: [GET, POST, PUT, DELETE]
+        authentication: jwt
+      - path: /api/v1/departments
+        methods: [GET, POST]
+        authentication: api_key
+      - path: /api/v1/projects
+        methods: [GET, POST, PUT]
+        authentication: jwt
+
+  - id: api-server-02
+    host: api02.company.com
+    type: application
+    ports: [8080, 8443]
+    endpoints:
+      - path: /api/v1/reports
+        methods: [GET]
+        authentication: jwt
+
+features:
+  user_management: true
+  project_tracking: true
+  reporting: true
+  api_integration: true
+  notifications: false
+
+permissions:
+  admin:
+    - create_users
+    - delete_users
+    - manage_departments
+    - view_all_reports
+  manager:
+    - view_department_users
+    - create_projects
+    - edit_projects
+    - view_reports
+  user:
+    - view_profile
+    - edit_profile
+    - view_projects
+
+environment_variables:
+  NODE_ENV: production
+  DATABASE_URL: postgres://db_user:password@db1.company.com:5432/enterprise_db
+  API_KEY: sk-1234567890abcdef
+  JWT_SECRET: my-super-secret-jwt-key
+  REDIS_URL: redis://redis.company.com:6379
+
+deployment:
+  kubernetes:
+    namespace: enterprise-system
+    replicas:
+      api: 3
+      db: 1
+      redis: 2
+  docker:
+    images:
+      api: enterprise/api:2.1.0
+      web: enterprise/web:2.1.0
+      db: postgres:13-alpine
+  monitoring:
+    prometheus:
+      enabled: true
+      scrape_interval: 15s
+    grafana:
+      enabled: true
+      dashboards: [api_performance, system_health, user_activity]
