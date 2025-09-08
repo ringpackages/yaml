@@ -74,6 +74,9 @@ You can access your YAML data in two convenient ways:
 // Access nested values
 product = data[:product]             // "Laptop"
 processor = data[:specs][:processor] // "i7"
+
+// Access array elements
+firstItem = data[:items][1][:name] // "Mouse"
 ```
 
 **2. Using the `yaml_get` function with Dot Notation:**
@@ -84,7 +87,9 @@ product = yaml_get(data, "product")          // "Laptop"
 processor = yaml_get(data, "specs.processor")  // "i7"
 
 // Access array elements (1-based indexing)
-firstItem = yaml_get(data, "items.name") // "Mouse"
+firstItem = yaml_get(data, "items[1].name") // "Mouse"
+// or
+firstItem = yaml_get(data, "items.[1].name") // "Mouse"
 ```
 
 ### Error Handling
