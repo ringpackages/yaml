@@ -6,22 +6,21 @@
 #define RING_YAML_DOCUMENT "YAML_DOCUMENT"
 #define MAX_YAML_SIZE (10 * 1024 * 1024)
 #define MAX_RECURSION_DEPTH 100
-#define MAX_NUMBER_LEN 255
+#define NUMERIC_CHECK_BUFFER_SIZE 101
 #define ERROR_BUFFER_SIZE 1024
 
-// Platform-specific thread-local storage definition
-#if defined(_MSC_VER)
-    #define RING_YAML_THREAD_LOCAL __declspec(thread)
-#elif __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_THREADS__)
+// Platform-specific thread-local storage for error messages
+#if __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_THREADS__)
     #include <threads.h>
     #define RING_YAML_THREAD_LOCAL thread_local
 #elif defined(__GNUC__) || defined(__clang__)
     #define RING_YAML_THREAD_LOCAL __thread
+#elif defined(_MSC_VER)
+    #define RING_YAML_THREAD_LOCAL __declspec(thread)
 #else
-    #define RING_YAML_THREAD_LOCAL
+    #define RING_YAML_THREAD_LOCAL // Fallback for unsupported compilers
 #endif
 
-// Thread-local error buffer for storing error messages
 RING_YAML_THREAD_LOCAL static char g_szYamlError[ERROR_BUFFER_SIZE];
 
 // Context structure for YAML processing
@@ -127,20 +126,20 @@ static yaml_document_t *parse_yaml_from_parser(VM *pVM, yaml_parser_t *pParser) 
  * @return 1 if the string is numeric, 0 otherwise
  */
 static int is_numeric_string(const char *value, size_t length, double *result) {
-    if (length >= MAX_NUMBER_LEN) return 0;
+    if (length == 0 || length >= NUMERIC_CHECK_BUFFER_SIZE) return 0;
     
-    char buffer[MAX_NUMBER_LEN + 1];
-    char *endptr;
-    
-    // Create a null-terminated copy of the string
+    char buffer[NUMERIC_CHECK_BUFFER_SIZE];
     memcpy(buffer, value, length);
     buffer[length] = '\0';
     
-    // Try to convert to double
+    // Avoid converting long numbers without decimals to double to prevent precision loss.
+    if (length > 15 && strchr(buffer, '.') == NULL && strchr(buffer, 'e') == NULL && strchr(buffer, 'E') == NULL) {
+        return 0;
+    }
+
+    char *endptr;
     *result = strtod(buffer, &endptr);
-    
-    // Check if the entire string was consumed
-    return (*endptr == '\0' && endptr != buffer);
+    return (endptr != buffer && *endptr == '\0');
 }
 
 /**
