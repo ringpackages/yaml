@@ -16,29 +16,34 @@ on:
     - '.github/workflows/**'
 
 jobs:
+  alpine:
+    uses: ./.github/workflows/alpine_build.yml
+    with:
+      ring-version: master
+
   freebsd:
     uses: ./.github/workflows/freebsd_build.yml
     with:
-      ring-version: v1.23
+      ring-version: master
 
   macos:
     uses: ./.github/workflows/macos_build.yml
     with:
-      ring-version: v1.23
+      ring-version: master
 
   ubuntu:
     uses: ./.github/workflows/ubuntu_build.yml
     with:
-      ring-version: v1.23
+      ring-version: master
 
   windows:
     uses: ./.github/workflows/windows_build.yml
     with:
-      ring-version: v1.23
+      ring-version: master
 
   update-libs:
     runs-on: ubuntu-latest
-    needs: [ freebsd, macos, ubuntu, windows ]
+    needs: [ alpine, freebsd, macos, ubuntu, windows ]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     permissions:

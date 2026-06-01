@@ -96,9 +96,29 @@ if(NOT DEFINED ARCH_DIR)
     endif()
 endif()
 
-
+# Detect musl libc
+option(MUSL "Build for musl libc" OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(NOT MUSL)
+        execute_process(
+            COMMAND ldd --version
+            OUTPUT_VARIABLE LDD_OUTPUT
+            ERROR_VARIABLE LDD_OUTPUT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(LDD_OUTPUT MATCHES "musl")
+            set(MUSL ON)
+            message(STATUS "Detected musl libc")
+        endif()
+    endif()
+endif()
 
 set(LIB_DEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
+if(MUSL AND OS_DIR STREQUAL "linux")
+    set(LIB_DEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/musl/${ARCH_DIR}")
+else()
+    set(LIB_DEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/${OS_DIR}/${ARCH_DIR}")
+endif()
 
 add_custom_command(
 	TARGET ring_yaml
