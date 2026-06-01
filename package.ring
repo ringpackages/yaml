@@ -65,8 +65,7 @@ aPackageInfo = [
 
 	],
 	:freebsdfiles = 	[
-		"lib/freebsd/amd64/libring_yaml.so",
-		"lib/freebsd/arm64/libring_yaml.so"
+		"lib/freebsd/amd64/libring_yaml.so"
 	],
 	:macosfiles = 	[
 		"lib/macos/amd64/libring_yaml.dylib",
