@@ -14,7 +14,7 @@ An easy-to-use YAML parsing and manipulation library for the Ring programming la
 
 ## 📋 Prerequisites
 
--   **Ring Language**: Ensure you have Ring version 1.23 or higher installed. You can download it from the [official Ring website](https://ring-lang.github.io/download.html).
+-   **Ring Language**: Ensure you have Ring version 1.27 or higher installed. You can download it from the [official Ring website](https://ring-lang.github.io/download.html).
 
 ## 🚀 Installation
 
